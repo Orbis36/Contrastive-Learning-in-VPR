@@ -6,6 +6,7 @@ from os.path import join, exists, isfile, realpath, dirname
 from os import makedirs, remove, chdir, environ
 
 environ['TMPDIR'] = '/tmp/'
+environ["CUDA_VISIBLE_DEVICES"] = "1"
 
 import torch
 import torch.nn as nn
@@ -25,7 +26,9 @@ import faiss
 from tensorboardX import SummaryWriter
 import numpy as np
 import netvlad
+import warnings
 
+warnings.filterwarnings("ignore")
 parser = argparse.ArgumentParser(description='pytorch-NetVlad')
 parser.add_argument('--mode', type=str, default='train', help='Mode', choices=['train', 'test', 'cluster'])
 parser.add_argument('--batchSize', type=int, default=4, 

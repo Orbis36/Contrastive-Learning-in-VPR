@@ -11,8 +11,16 @@ from PIL import Image
 
 from sklearn.neighbors import NearestNeighbors
 import h5py
+import socket
 
-root_dir = '/media/HC550-16T/Dataset/Pittsburgh250K'
+if socket.gethostname() == 'alpha':
+    root_dir = '/comm_dat2/Tianran/VPR/Pittsburgh250K'
+elif socket.gethostname() == 'tianranliu-DL':
+    root_dir = '/media/HC550-16T/Dataset/Pittsburgh250K'
+else:
+    root_dir = ''
+    raise NameError
+
 if not exists(root_dir):
     raise FileNotFoundError('root_dir is hardcoded, please adjust to point to Pittsburth dataset')
 
@@ -214,34 +222,37 @@ class QueryDatasetFromStruct(data.Dataset):
         with h5py.File(self.cache, mode='r') as h5: 
             h5feat = h5.get("features")
 
+            # 偏移量10000，做test用
             qOffset = self.dbStruct.numDb 
             qFeat = h5feat[index+qOffset]
-
+            
             posFeat = h5feat[self.nontrivial_positives[index].tolist()]
             knn = NearestNeighbors(n_jobs=-1) # TODO replace with faiss?
             knn.fit(posFeat)
+
+            # 拿到和这个anchor最近的pos sample的index
             dPos, posNN = knn.kneighbors(qFeat.reshape(1,-1), 1)
             dPos = dPos.item()
             posIndex = self.nontrivial_positives[index][posNN[0]].item()
-
+            
+            # 随机取最多一千个负样本，和之前cache里取并集
             negSample = np.random.choice(self.potential_negatives[index], self.nNegSample)
             negSample = np.unique(np.concatenate([self.negCache[index], negSample]))
-
+            
+            # 在这近一千个的neg里找出和query在样本空间最近的N个neg，这里N取100            
             negFeat = h5feat[negSample.tolist()]
             knn.fit(negFeat)
-
             dNeg, negNN = knn.kneighbors(qFeat.reshape(1,-1), 
                     self.nNeg*10) # to quote netvlad paper code: 10x is hacky but fine
             dNeg = dNeg.reshape(-1)
             negNN = negNN.reshape(-1)
-
             # try to find negatives that are within margin, if there aren't any return none
             violatingNeg = dNeg < dPos + self.margin**0.5
      
             if np.sum(violatingNeg) < 1:
                 #if none are violating then skip this query
                 return None
-
+            # 最后选10个neg
             negNN = negNN[violatingNeg][:self.nNeg]
             negIndices = negSample[negNN].astype(np.int32)
             self.negCache[index] = negIndices
