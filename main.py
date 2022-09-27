@@ -6,7 +6,8 @@ from os.path import join, exists, isfile, realpath, dirname
 from os import makedirs, remove, chdir, environ
 
 environ['TMPDIR'] = '/tmp/'
-environ["CUDA_VISIBLE_DEVICES"] = "1"
+environ["CUDA_VISIBLE_DEVICES"] = "0"
+print("0")
 
 import torch
 import torch.nn as nn
