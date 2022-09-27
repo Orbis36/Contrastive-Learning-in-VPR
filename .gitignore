@@ -3,6 +3,7 @@
 # that are supposed to be shared within teams.
 
 .idea/*
+.vscode/*
 
 !.idea/codeStyles
 !.idea/runConfigurations

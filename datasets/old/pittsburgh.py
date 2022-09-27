@@ -49,6 +49,7 @@ def get_250k_val_set():
     structFile = join(struct_dir, 'pitts250k_val.mat')
     return WholeDatasetFromStruct(structFile,
                              input_transform=input_transform())
+
 def get_whole_test_set():
     structFile = join(struct_dir, 'pitts30k_test.mat')
     return WholeDatasetFromStruct(structFile,
