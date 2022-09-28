@@ -1,0 +1,17 @@
+
+
+MODEL: 
+    NAME: NetVLAD
+
+    BACKBONE: 
+        NAME: VGG16
+
+    FEATURE_SELECT: 
+        NAME: VLAD
+        CLUSTERS_NUM: 6
+
+    POST_MATCHING: 
+        NAME: VANILLIA
+
+OPTIMIZATION:
+    

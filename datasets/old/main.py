@@ -305,7 +305,6 @@ if __name__ == "__main__":
     cuda = not opt.nocuda
     if cuda and not torch.cuda.is_available():
         raise Exception("No GPU found, please run with --nocuda")
-
     device = torch.device("cuda" if cuda else "cpu")
 
     random.seed(opt.seed)
@@ -326,6 +325,7 @@ if __name__ == "__main__":
         print('====> Training query set:', len(train_set))
         whole_test_set = dataset.get_whole_val_set()
         print('===> Evaluating on val set, query count:', whole_test_set.dbStruct.numQ)
+    
     elif opt.mode.lower() == 'test':
         if opt.split.lower() == 'test':
             whole_test_set = dataset.get_whole_test_set()
@@ -359,7 +359,7 @@ if __name__ == "__main__":
             for l in layers[:-1]:
                 for p in l.parameters():
                     p.requires_grad = False
-
+    
     elif opt.arch.lower() == 'vgg16':
         encoder_dim = 512
         encoder = models.vgg16(pretrained=pretrained)

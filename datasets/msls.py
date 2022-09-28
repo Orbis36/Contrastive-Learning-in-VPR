@@ -41,7 +41,7 @@ import itertools
 from tqdm import tqdm
 from sklearn.neighbors import NearestNeighbors
 from torch.utils.data import Dataset
-from dataset import DatasetTemplate
+from .dataset import DatasetTemplate
 
 
 default_cities_ori = {

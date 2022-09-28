@@ -181,7 +181,7 @@ class QueryDatasetFromStruct(data.Dataset):
 
         self.input_transform = input_transform
         self.margin = margin
-
+        
         self.dbStruct = parse_dbStruct(structFile)
         self.whichSet = self.dbStruct.whichSet
         self.dataset = self.dbStruct.dataset

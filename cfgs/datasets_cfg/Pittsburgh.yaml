@@ -1,0 +1,26 @@
+NAME: 'Pittsburgh'
+SPLIT: 'pitts30k'
+PRETEXT_TASK: 'Contrastive'
+TRAINING_TASK: 'i2i'
+
+AUGMENTOR:
+    AUG_CONFIG_LIST:
+        - NAME: image_normalize
+          STD: [0.229, 0.224, 0.225]
+          MEAN: [0.485, 0.456, 0.406]
+PATH:
+    ROOT_PATH: './data/pittsburgh/'
+    MAT_PATH: 'datasets_label'
+
+SAMPLE:
+    MERGIN: 10
+    N_NEG_SAMPLE: 1000
+    NEG_USE: 10
+
+
+
+
+
+        
+
+
