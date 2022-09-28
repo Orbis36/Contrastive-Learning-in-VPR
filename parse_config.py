@@ -47,8 +47,11 @@ def get_parsed_args():
         parser.add_argument('--split', type=str, default='val', help='Data split to use for testing. Default is val', 
                 choices=['test', 'test250k', 'train', 'val'])
         parser.add_argument('--fromscratch', action='store_true', help='Train from scratch rather than using pretrained models')
+        
+        
         parser.add_argument('--dataset_cfg', type=str, default='None')
         parser.add_argument('--model_cfg', type=str, default='None')
+        parser.add_argument('--temp_weight_path', type=str, default='./weight_data/model_pth')
         args = parser.parse_args()
 
         with open(args.dataset_cfg, 'r') as f:

@@ -6,7 +6,7 @@ __all__ = {
     'NetVLAD': NetVLAD
 }
 
-def build_(model_cfg):
+def build_model(model_cfg):
     model = __all__[model_cfg.NAME](
         model_cfg=model_cfg
     )
