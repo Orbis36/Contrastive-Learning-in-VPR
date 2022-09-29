@@ -4,14 +4,22 @@ MODEL:
     NAME: NetVLAD
 
     BACKBONE: 
-        NAME: VGG16
+        NAME: ClassicalConv
+        TYPE: VGG16
+        PRETRAINED: True
 
     FEATURE_SELECT: 
-        NAME: VLAD
+        NAME: VLADLayer
+        MARGIN: 0.1
         CLUSTERS_NUM: 6
+        VLAD_NEW_VERSION: True
+        NORMALIZE: True
+
 
     POST_MATCHING: 
         NAME: VANILLIA
 
 OPTIMIZATION:
+    EPOCH: 30
+    
     

@@ -1,15 +1,16 @@
+from pyexpat import model
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from sklearn.neighbors import NearestNeighbors
+from .feature_select_template import FeatureSelectTemplate
 import numpy as np
 
 # based on https://github.com/lyakaap/NetVLAD-pytorch/blob/master/netvlad.py
-class NetVLAD(nn.Module):
+class NetVLAD(FeatureSelectTemplate):
     """NetVLAD layer implementation"""
-
-    def __init__(self, num_clusters=64, dim=128, 
-                 normalize_input=True, vladv2=False):
+    def __init__(self, model_cfg):
+        super().__init__(model_cfg=model_cfg)
         """
         Args:
             num_clusters : int
@@ -24,13 +25,12 @@ class NetVLAD(nn.Module):
                 If true, use vladv2 otherwise use vladv1
         """
         super(NetVLAD, self).__init__()
-        self.num_clusters = num_clusters
-        self.dim = dim
+        self.num_clusters = model_cfg.CLUSTERS_NUM
         self.alpha = 0
-        self.vladv2 = vladv2
-        self.normalize_input = normalize_input
-        self.conv = nn.Conv2d(dim, num_clusters, kernel_size=(1, 1), bias=vladv2)
-        self.centroids = nn.Parameter(torch.rand(num_clusters, dim))
+        self.vladv2 = model_cfg.VLAD_NEW_VERSION
+        self.normalize_input = model_cfg.NORMALIZE
+        self.conv = nn.Conv2d(model_cfg.BACKBONE_OUT_DIM, self.num_clusters, kernel_size=(1, 1), bias=self.vladv2)
+        self.centroids = nn.Parameter(torch.rand(self.num_clusters, model_cfg.BACKBONE_OUT_DIM))
 
     def init_params(self, clsts, traindescs):
         #TODO replace numpy ops with pytorch ops
@@ -61,9 +61,9 @@ class NetVLAD(nn.Module):
                 - self.alpha * self.centroids.norm(dim=1)
             )
 
-    def forward(self, x):
+    def forward(self, data_dict):
+        x = data_dict['feature_map']
         N, C = x.shape[:2]
-
         if self.normalize_input:
             x = F.normalize(x, p=2, dim=1)  # across descriptor dim
 
@@ -84,5 +84,5 @@ class NetVLAD(nn.Module):
         vlad = F.normalize(vlad, p=2, dim=2)  # intra-normalization
         vlad = vlad.view(x.size(0), -1)  # flatten
         vlad = F.normalize(vlad, p=2, dim=1)  # L2 normalize
-
+        data_dict['clustered_feature'] = vlad
         return vlad

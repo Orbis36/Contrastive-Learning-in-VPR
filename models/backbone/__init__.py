@@ -1,5 +1,5 @@
-from ClassicalConv import ClassicalConv
+from .ClassicalConv import ClassicalConvBackbone
 
 __all__ = {
-    'ClassicalConv': ClassicalConv
+    'ClassicalConv': ClassicalConvBackbone
 }

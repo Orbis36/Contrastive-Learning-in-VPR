@@ -1,12 +1,18 @@
 from datasets import create_dataset
 from parse_config import get_parsed_args
 from utils.common_utils import set_random_seed
+from utils.optimization import build_scheduler, build_optimizer
+
 from datasets import create_dataset
 from models import build_network
 
 import torch
 import yaml
 import os
+
+# def train_model(model, data_loader, optimizer, total_epoch):
+
+
 
 if __name__ == "__main__":
 
@@ -30,9 +36,16 @@ if __name__ == "__main__":
     train_dataset = create_dataset(dataset_cfg, mode='train')
     val_dataset = create_dataset(dataset_cfg, mode='val')
     
-    model = build_network(model_cfg=model_cfg)
-    # TODO: loss and 优化器
+    model = build_network(model_cfg=model_cfg.MODEL)
+    optimizer = build_optimizer(opt_cfg=model_cfg.OPTIMIZATION)
+    scheduler = build_scheduler(optimizer, model_cfg.OPTIMIZATION)
+    model.train()
     # TODO：dataset细化
+
+    for epoch in range(model_cfg.OPTIMIZATION.EPOCH):
+        if opt.optim.upper() == 'SGD':
+            scheduler.step(epoch)
+        
 
     del os.environ["TORCH_HOME"]
 
