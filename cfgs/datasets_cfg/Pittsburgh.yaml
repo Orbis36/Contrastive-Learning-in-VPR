@@ -11,11 +11,20 @@ AUGMENTOR:
 PATH:
     ROOT_PATH: './data/pittsburgh/'
     MAT_PATH: 'datasets_label'
+    QUERIES_PATH: 'queries_real'
 
 SAMPLE:
-    MERGIN: 10
-    N_NEG_SAMPLE: 1000
+    MERGIN: 0.1
+    CACHE_SAMPLE: 1000
     NEG_USE: 10
+    NEG_DIST: 25
+    N_NEG_SAMPLE_TIMES: 5 # 五倍cache数量的neg里做hard negative mining
+    
+TRAINING:
+    BATCH_SIZE: 24
+    WORKERS: 6
+    CACHESUBSET: 6
+    MOST_N_NEG: 5
 
 
 

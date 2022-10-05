@@ -51,7 +51,7 @@ def train(epoch):
         subsetIdx = [np.arange(len(train_set))]
 
     nBatches = (len(train_set) + opt.batchSize - 1) // opt.batchSize
-
+    
     for subIter in range(subsetN):
         print('====> Building Cache')
         model.eval()
@@ -202,7 +202,6 @@ def get_clusters(cluster_set):
     nDescriptors = 50000
     nPerImage = 100
     nIm = ceil(nDescriptors/nPerImage)
-
     sampler = SubsetRandomSampler(np.random.choice(len(cluster_set), nIm, replace=False))
     data_loader = DataLoader(dataset=cluster_set, 
                 num_workers=opt.threads, batch_size=opt.cacheBatchSize, shuffle=False, 
@@ -241,7 +240,7 @@ def get_clusters(cluster_set):
         niter = 100
         kmeans = faiss.Kmeans(encoder_dim, opt.num_clusters, niter=niter, verbose=False)
         kmeans.train(dbFeat[...])
-
+        
         print('====> Storing centroids', kmeans.centroids.shape)
         h5.create_dataset('centroids', data=kmeans.centroids)
         print('====> Done!')
@@ -325,7 +324,6 @@ if __name__ == "__main__":
         print('====> Training query set:', len(train_set))
         whole_test_set = dataset.get_whole_val_set()
         print('===> Evaluating on val set, query count:', whole_test_set.dbStruct.numQ)
-    
     elif opt.mode.lower() == 'test':
         if opt.split.lower() == 'test':
             whole_test_set = dataset.get_whole_test_set()
@@ -359,7 +357,6 @@ if __name__ == "__main__":
             for l in layers[:-1]:
                 for p in l.parameters():
                     p.requires_grad = False
-    
     elif opt.arch.lower() == 'vgg16':
         encoder_dim = 512
         encoder = models.vgg16(pretrained=pretrained)
@@ -371,7 +368,6 @@ if __name__ == "__main__":
             for l in layers[:-5]: 
                 for p in l.parameters():
                     p.requires_grad = False
-
     if opt.mode.lower() == 'cluster' and not opt.vladv2:
         layers.append(L2Norm())
 
@@ -379,6 +375,7 @@ if __name__ == "__main__":
     model = nn.Module() 
     model.add_module('encoder', encoder)
 
+    # 如果是真正训练
     if opt.mode.lower() != 'cluster':
         if opt.pooling.lower() == 'netvlad':
             net_vlad = netvlad.NetVLAD(num_clusters=opt.num_clusters, dim=encoder_dim, vladv2=opt.vladv2)

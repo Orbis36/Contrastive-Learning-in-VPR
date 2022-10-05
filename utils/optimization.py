@@ -11,7 +11,7 @@ def build_optimizer(model, opt_cfg):
         ValueError('Unknown optimizer: ' + opt_cfg.NAME)
 
     return optimizer
-
+    
 
 def build_scheduler(optimizer, opt_cfg):
     if opt_cfg.SHEDULER_METHOD == 'EQUALGAP':

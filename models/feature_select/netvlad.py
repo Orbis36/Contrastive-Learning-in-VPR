@@ -24,7 +24,6 @@ class NetVLAD(FeatureSelectTemplate):
             vladv2 : bool
                 If true, use vladv2 otherwise use vladv1
         """
-        super(NetVLAD, self).__init__()
         self.num_clusters = model_cfg.CLUSTERS_NUM
         self.alpha = 0
         self.vladv2 = model_cfg.VLAD_NEW_VERSION
@@ -85,4 +84,21 @@ class NetVLAD(FeatureSelectTemplate):
         vlad = vlad.view(x.size(0), -1)  # flatten
         vlad = F.normalize(vlad, p=2, dim=1)  # L2 normalize
         data_dict['clustered_feature'] = vlad
-        return vlad
+        return data_dict
+
+    def get_feature_selected_loss(self, data_dict):
+
+        features_encoded = data_dict['clustered_feature']
+        B = data_dict['nQuery']
+        nNeg = data_dict['nNeg']
+        negCounts = data_dict['negCounts']
+
+        vladQ, vladP, vladN = torch.split(features_encoded, [B, B, nNeg])
+        loss = 0
+        for i, negCount in enumerate(negCounts):
+            for n in range(negCount):
+                negIx = (torch.sum(negCounts[:i]) + n).item()
+                loss += self.triplet_loss_func(vladQ[i: i + 1], vladP[i: i + 1], vladN[negIx:negIx + 1])
+
+        loss /= nNeg.float() # normalise by actual number of negatives
+        return loss

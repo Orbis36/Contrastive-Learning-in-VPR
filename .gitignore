@@ -12,5 +12,6 @@
 data/
 weight_data/
 runs/
+temp.py
 __pycache__/
 Refresh*.log

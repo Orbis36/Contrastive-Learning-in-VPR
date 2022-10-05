@@ -31,13 +31,12 @@ class ClassicalConvBackbone(nn.Module):
         encoder = nn.Sequential(*layers)
         self.model_use = nn.Module() 
         self.model_use.add_module('encoder', encoder)
-
         self.out_dim = encoder[-1].out_channels
         
     def forward(self, data_dict):
         # 注意，这里看下cluster的加入的L2 norm
-        all_samples = data_dict['samples']
-        data_dict['feature_map'] = self.model_use(all_samples)
+        all_samples = data_dict['image']
+        data_dict['feature_map'] = self.model_use.encoder(all_samples)
         return data_dict
 
 

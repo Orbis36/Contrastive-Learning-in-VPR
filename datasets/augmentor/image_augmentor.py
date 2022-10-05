@@ -2,7 +2,10 @@ import cv2
 import torch
 import numpy as np
 import faiss
+import torch.nn as nn
+
 from functools import partial
+
 
 class DataAugmentor(object):
     def __init__(self, cur_cfg) -> None:
@@ -22,8 +25,7 @@ class DataAugmentor(object):
         img = data_dict['image'] / 255.0
         img -= np.array(self.mean)
         data_dict['image'] = img / np.array(self.std)
-
-        return img
+        return data_dict
 
     def forward(self, data_dict):
         for _aug in self.data_augmentor_queue:
