@@ -7,6 +7,7 @@ from datasets import create_dataset
 from models import build_network
 from torch.utils.data import DataLoader
 from tqdm.auto import trange, tqdm
+from test import test_model
 
 import torch
 import yaml
@@ -41,22 +42,25 @@ if __name__ == "__main__":
     model.cuda()
     # 初始化，是导入新权重并全部冻结以做seq2seq模型
     
+    
     optimizer = build_optimizer(model, opt_cfg=model_cfg.OPTIMIZATION)
     scheduler = build_scheduler(optimizer, model_cfg.OPTIMIZATION)
 
+    not_improved = 0
+    best_score = 0
     for epoch in range(model_cfg.OPTIMIZATION.EPOCH):
+        # TODO：这里按照不同pretext task应该写不同，分类时应该在此处划分新子集
         train_dataset.new_epoch()
         for subIter in trange(train_dataset.nCacheSubset, desc='Cache refresh'.rjust(15), position=1):
             # A single epoch
             tqdm.write('====> Building Cache')
-            train_dataset.update_subcache(model)
-            training_data_loader = DataLoader(dataset=train_dataset, num_workers=opt.threads,
-                                            batch_size=int(dataset_cfg.TRAINING.BATCH_SIZE), shuffle=True,
-                                            collate_fn=train_dataset.collate_fn, pin_memory=cuda)
-            
-            tqdm.write('Allocated: ' + torch.cuda.memory_allocated())
-            tqdm.write('Cached:    ' + torch.cuda.memory_cached())
 
+            test_model(model, val_dataset, opt.threads, cuda=device=='gpu', device=device)
+
+            # train_dataset.update_subcache(model)
+            training_data_loader = DataLoader(dataset=train_dataset, num_workers=opt.threads,
+                                            batch_size=train_dataset.bs, shuffle=True,
+                                            collate_fn=train_dataset.collate_fn, pin_memory=cuda)
             model.train()
             for iteration, batch_dict in enumerate(training_data_loader):
                 load_to_gpu(batch_dict)
@@ -67,6 +71,8 @@ if __name__ == "__main__":
         if opt.optim.upper() == 'SGD':
             scheduler.step(epoch)
 
+        if (epoch % int(dataset_cfg.TRAINING.TEST_EVERY)) == 0:
+            test_model(model, val_dataset, opt.threads, cuda=device=='gpu', device=device)
 
     del os.environ["TORCH_HOME"]
 

@@ -4,10 +4,9 @@ import torch
 
 import cv2
 from collections import namedtuple
-from collections import defaultdict
 from sklearn.neighbors import NearestNeighbors
 from tqdm import tqdm
-from utils.common_utils import load_to_gpu
+from utils.common_utils import load_to_gpu, reFormatDict
     
 # A mini dataset class for image loading in desc. calculation
 class ImagesFromList(torch_data.Dataset):
@@ -21,23 +20,21 @@ class ImagesFromList(torch_data.Dataset):
     def __getitem__(self, idx):
 
         imgs = cv2.imread(self.images[idx])
-        data_dict = {'image': imgs}
+        data_dict = {'image': imgs, 'idx': idx}
         data_dict = self.transform.forward(data_dict=data_dict)
         return data_dict
     
     @staticmethod
     def collect_fn_img_load(batch_list):
 
-        data_dict = defaultdict(list)
-        for cur_sample in batch_list:
-            for key, val in cur_sample.items():
-                data_dict[key].append(val)
-
+        data_dict = reFormatDict(batch_list=batch_list)
         ret = {}
         for key, val in data_dict.items():
             try:
                 if key in ['image']:
                     ret[key] = np.stack(val, axis=0).transpose(0, 3, 1, 2)
+                if key in ['idx']:
+                    ret[key] = np.array(val).reshape(-1, 1)
             except:
                 print('Error in collate_batch: key=%s' % key)
                 raise TypeError
@@ -57,7 +54,7 @@ class DatasetTemplate(torch_data.Dataset):
         self.nonNeg = config.SAMPLE.NEG_DIST
 
         # number of negatives used for training
-        self.nNegUse = config.SAMPLE.NEG_USE
+        self.nNeg = config.SAMPLE.NEG_USE
         self.dbStruct = namedtuple('dbStruct', ['whichSet', 'dataset', 
         'dbImage', 'utmDb', 'qImage', 'utmQ', 'numDb', 'numQ',
         'posDistThr', 'posDistSqThr', 'nonTrivPosDistSqThr'])

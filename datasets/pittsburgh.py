@@ -2,6 +2,7 @@ from os.path import join
 from .dataset import DatasetTemplate
 from scipy.io import loadmat
 from .augmentor.image_augmentor import DataAugmentor
+from utils.common_utils import reFormatDict
 
 import torch.utils.data as data
 import torch
@@ -23,7 +24,6 @@ class Pittsburgh(DatasetTemplate):
         self.root_path = config.PATH.ROOT_PATH
         self.margin = config.SAMPLE.MERGIN
         self.split = config.SPLIT
-        self.nNeg = config.TRAINING.MOST_N_NEG
         self.pretext_task = config.PRETEXT_TASK
         self.bs = config.TRAINING.BATCH_SIZE
         self.workers = config.TRAINING.WORKERS
@@ -35,6 +35,9 @@ class Pittsburgh(DatasetTemplate):
         self.dbImages = np.asarray([join(self.root_path, dbIm) for dbIm in self.dbStruct.dbImage], dtype=object)
         queries_dir = self.root_path + config.PATH.QUERIES_PATH
         self.qImages = np.asarray([join(queries_dir, qIm) for qIm in self.dbStruct.qImage], dtype=object)
+        
+        # 为了满足msls格式的dataloader，实际上表示城市，这里pitts只有一个城市，即一个元素
+        self.qEndPosList, self.dbEndPosList = [len(self.qImages)], [len(self.dbImages)]
 
         # 图像数据增强
         self.augmentor = DataAugmentor(config.AUGMENTOR)
@@ -49,6 +52,10 @@ class Pittsburgh(DatasetTemplate):
             raise ValueError("Pretext task selected haven't been implemented")
         
         self.weights = np.ones(len(self.qIdx))
+
+    def __len__(self):
+        self.triplets = np.arange(1000)
+        return len(self.triplets)
 
     def parse_dbStruct(self, path):
         mat_path = join(path, self.split + '_' + self.check_mode + '.mat')
@@ -90,56 +97,61 @@ class Pittsburgh(DatasetTemplate):
         self.current_subset = 0
     
     def collate_fn(self, batch):
-        """Creates mini-batch tensors from the list of tuples (query, positive, negatives).
+        
+        data_dict = reFormatDict(batch)
+        ret = {}
+        for key, val in data_dict.items():
+            try:
+                if key in ['nQuery', 'nPos', 'nNeg']:
+                    ret[key] = np.vstack(val).transpose(0, 3, 1, 2)
+                elif key in ['p_n_label']:
+                    ret[key] = np.stack(val, axis=0)
+                elif key in ['negCounts']:
+                    ret[key] = np.concatenate(val)
+            except:
+                print('Error in collate_batch: key=%s' % key)
+                raise TypeError
 
-        Args:
-            batch: list of tuple (query, positive, negatives).
-                - query: torch tensor of shape (3, h, w).
-                - positive: torch tensor of shape (3, h, w).
-                - negative: torch tensor of shape (n, 3, h, w).
-        Returns:
-            query: torch tensor of shape (batch_size, 3, h, w).
-            positive: torch tensor of shape (batch_size, 3, h, w).
-            negatives: torch tensor of shape (batch_size, n, 3, h, w).
-        """
-        batch_dict = {}
-        batch = list(filter(lambda x: x is not None, batch))
-        if len(batch) == 0:
-            return None, None, None, None, None
+        ret['image'] = np.vstack((ret['nQuery'], ret['nPos'], ret['nNeg']))
+        [ret.pop(x) for x in ['nQuery', 'nPos', 'nNeg']]
+        ret['bs'] = self.bs
+        ret['nNegUse'] = self.nNeg
 
-        query, positive, negatives, indices = zip(*batch)
+        return ret
 
-        query = data.dataloader.default_collate(query)
-        positive = data.dataloader.default_collate(positive)
-        negatives = torch.cat(negatives, 0)
-        # 统计各个bs的大小
-        negCounts = data.dataloader.default_collate([x.shape[0] for x in negatives])
-        data_input = torch.cat([query, positive, negatives])
-
-        batch_dict['nQuery'] = query.shape[0]
-        batch_dict['nNeg'] = negatives.shape[0]
-        batch_dict['negCounts'] = negCounts
-        batch_dict['samples'] = data_input
-        return batch_dict
+    def prepare_data(self, neg, query, pos):
+        allImages = np.concatenate((query, pos, neg), 0)
+        temp = {'image': allImages}
+        imageAug = self.augmentor.forward(temp)
+        return imageAug['image']
 
     def __getitem__(self, idx):
-        # 这里需要用batch dict的形式过augmentor
+        
+        ret = {}
         # get triplet
-        triplet, target = self.triplets[idx]
+
+        #triplet, target = self.triplets[idx]
 
         # get query, positive and negative idx
-        qidx = triplet[0]
-        pidx = triplet[1]
-        nidx = triplet[2:]
+        #qidx = triplet[0]
+        #pidx = triplet[1]
+        #nidx = triplet[2:]
+
+        nidx = [4,5,6,7,8]
+        pidx = 9
+        qidx = 10
 
         # load images into triplet list
         negImage = np.stack([cv2.imread(self.dbImages[idx]) for idx in nidx],axis=0)
         pImage = cv2.imread(self.dbImages[pidx])[np.newaxis, ...]
         qImage = cv2.imread(self.qImages[qidx])[np.newaxis, ...]
 
-        print()
+        imageAug = self.prepare_data(negImage, qImage, pImage)
+        ret['nQuery'] = imageAug[0:1, ...]
+        ret['nPos'] = imageAug[1:2, ...]
+        ret['nNeg'] = imageAug[2:, ...]
+        ret['p_n_label'] = np.array([qidx, pidx] + nidx)
+        ret['negCounts'] = np.array(len(nidx)).reshape(-1, 1)
+        return ret
 
 
-        return query, positive, negatives, [qidx, pidx] + nidx
-
-    

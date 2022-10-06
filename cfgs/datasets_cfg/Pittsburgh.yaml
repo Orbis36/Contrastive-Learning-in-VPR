@@ -16,15 +16,16 @@ PATH:
 SAMPLE:
     MERGIN: 0.1
     CACHE_SAMPLE: 1000
-    NEG_USE: 10
+    NEG_USE: 5
     NEG_DIST: 25
     N_NEG_SAMPLE_TIMES: 5 # 五倍cache数量的neg里做hard negative mining
     
 TRAINING:
-    BATCH_SIZE: 24
+    BATCH_SIZE: 12
     WORKERS: 6
     CACHESUBSET: 6
-    MOST_N_NEG: 5
+    TEST_EVERY: 1
+    
 
 
 

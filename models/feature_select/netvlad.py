@@ -89,8 +89,9 @@ class NetVLAD(FeatureSelectTemplate):
     def get_feature_selected_loss(self, data_dict):
 
         features_encoded = data_dict['clustered_feature']
-        B = data_dict['nQuery']
-        nNeg = data_dict['nNeg']
+        B = data_dict['bs']
+        nNeg = data_dict['nNegUse'] * B
+        # negCounts 是各个batch中负样本数目
         negCounts = data_dict['negCounts']
 
         vladQ, vladP, vladN = torch.split(features_encoded, [B, B, nNeg])
@@ -100,5 +101,5 @@ class NetVLAD(FeatureSelectTemplate):
                 negIx = (torch.sum(negCounts[:i]) + n).item()
                 loss += self.triplet_loss_func(vladQ[i: i + 1], vladP[i: i + 1], vladN[negIx:negIx + 1])
 
-        loss /= nNeg.float() # normalise by actual number of negatives
+        loss /= nNeg # normalise by actual number of negatives
         return loss
