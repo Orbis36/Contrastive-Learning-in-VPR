@@ -1,6 +1,6 @@
 from datasets import create_dataset
 from parse_config import get_parsed_args
-from utils.common_utils import set_random_seed, load_to_gpu
+from utils.common_utils import set_random_seed, load_to_gpu, saveCheckPoint
 from utils.optimization import build_scheduler, build_optimizer
 
 from datasets import create_dataset
@@ -38,11 +38,10 @@ if __name__ == "__main__":
     train_dataset = create_dataset(dataset_cfg, mode='train')
     val_dataset = create_dataset(dataset_cfg, mode='val')
     
-    model = build_network(model_cfg=model_cfg.MODEL)
+    model = build_network(model_cfg=model_cfg.MODEL, cache_dataset=train_dataset)
     model.cuda()
     # 初始化，是导入新权重并全部冻结以做seq2seq模型
-    
-    
+
     optimizer = build_optimizer(model, opt_cfg=model_cfg.OPTIMIZATION)
     scheduler = build_scheduler(optimizer, model_cfg.OPTIMIZATION)
 
@@ -54,10 +53,7 @@ if __name__ == "__main__":
         for subIter in trange(train_dataset.nCacheSubset, desc='Cache refresh'.rjust(15), position=1):
             # A single epoch
             tqdm.write('====> Building Cache')
-
-            test_model(model, val_dataset, opt.threads, cuda=device=='gpu', device=device)
-
-            # train_dataset.update_subcache(model)
+            train_dataset.update_subcache(model)
             training_data_loader = DataLoader(dataset=train_dataset, num_workers=opt.threads,
                                             batch_size=train_dataset.bs, shuffle=True,
                                             collate_fn=train_dataset.collate_fn, pin_memory=cuda)
@@ -72,8 +68,18 @@ if __name__ == "__main__":
             scheduler.step(epoch)
 
         if (epoch % int(dataset_cfg.TRAINING.TEST_EVERY)) == 0:
-            test_model(model, val_dataset, opt.threads, cuda=device=='gpu', device=device)
-
+            recalls = test_model(model, val_dataset, opt.threads, cuda=device=='gpu', device=device)
+            is_best = recalls[5] > best_score
+            if is_best:
+                not_improved = 0
+                best_score = recalls[5]
+                saveCheckPoint(model=model, optimizer=optimizer, epoch=epoch, recalls=recalls)
+            else:
+                not_improved += 1
+            if opt.patience > 0 and not_improved > (opt.patience / int(dataset_cfg.TRAINING.TEST_EVERY)):
+                break
+    
     del os.environ["TORCH_HOME"]
+    torch.cuda.empty_cache()
 
     

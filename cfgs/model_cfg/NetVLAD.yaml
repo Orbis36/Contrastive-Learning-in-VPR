@@ -3,6 +3,10 @@
 MODEL: 
     NAME: NetVLAD
 
+    CACHE:
+        DESC_NUM: 50000
+        DESC_PER_IMG: 100
+
     BACKBONE: 
         NAME: ClassicalConv
         TYPE: VGG16
@@ -14,6 +18,7 @@ MODEL:
         CLUSTERS_NUM: 16
         VLAD_NEW_VERSION: True
         NORMALIZE: True
+        INIT_PARAM: True
 
 
     POST_MATCHING: 

@@ -54,7 +54,6 @@ class Pittsburgh(DatasetTemplate):
         self.weights = np.ones(len(self.qIdx))
 
     def __len__(self):
-        self.triplets = np.arange(1000)
         return len(self.triplets)
 
     def parse_dbStruct(self, path):
@@ -112,11 +111,10 @@ class Pittsburgh(DatasetTemplate):
                 print('Error in collate_batch: key=%s' % key)
                 raise TypeError
 
+        ret['bs'] = ret['nQuery'].shape[0]
+        ret['nNegUse'] = ret['nNeg'].shape[0]
         ret['image'] = np.vstack((ret['nQuery'], ret['nPos'], ret['nNeg']))
         [ret.pop(x) for x in ['nQuery', 'nPos', 'nNeg']]
-        ret['bs'] = self.bs
-        ret['nNegUse'] = self.nNeg
-
         return ret
 
     def prepare_data(self, neg, query, pos):
@@ -130,16 +128,12 @@ class Pittsburgh(DatasetTemplate):
         ret = {}
         # get triplet
 
-        #triplet, target = self.triplets[idx]
+        triplet, target = self.triplets[idx]
 
         # get query, positive and negative idx
-        #qidx = triplet[0]
-        #pidx = triplet[1]
-        #nidx = triplet[2:]
-
-        nidx = [4,5,6,7,8]
-        pidx = 9
-        qidx = 10
+        qidx = triplet[0]
+        pidx = triplet[1]
+        nidx = triplet[2:]
 
         # load images into triplet list
         negImage = np.stack([cv2.imread(self.dbImages[idx]) for idx in nidx],axis=0)

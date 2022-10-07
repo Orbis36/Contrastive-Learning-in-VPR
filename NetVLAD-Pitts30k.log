@@ -1,0 +1,169 @@
+nohup: ignoring input
+cache_pth exist
+weight_pth exist
+====> Extracting Descriptors
+           Iter:   0%|          | 0/42 [00:00<?, ?it/s]           Iter:   2%|▏         | 1/42 [00:03<02:06,  3.09s/it]           Iter:   5%|▍         | 2/42 [00:03<00:58,  1.46s/it]           Iter:   7%|▋         | 3/42 [00:03<00:36,  1.08it/s]           Iter:  10%|▉         | 4/42 [00:03<00:24,  1.53it/s]           Iter:  12%|█▏        | 5/42 [00:04<00:19,  1.91it/s]           Iter:  14%|█▍        | 6/42 [00:04<00:14,  2.43it/s]           Iter:  17%|█▋        | 7/42 [00:04<00:11,  2.94it/s]           Iter:  19%|█▉        | 8/42 [00:04<00:09,  3.45it/s]           Iter:  21%|██▏       | 9/42 [00:05<00:08,  3.72it/s]           Iter:  24%|██▍       | 10/42 [00:05<00:07,  4.03it/s]           Iter:  26%|██▌       | 11/42 [00:05<00:06,  4.43it/s]           Iter:  29%|██▊       | 12/42 [00:05<00:06,  4.79it/s]           Iter:  31%|███       | 13/42 [00:05<00:05,  4.99it/s]           Iter:  33%|███▎      | 14/42 [00:05<00:05,  5.01it/s]           Iter:  36%|███▌      | 15/42 [00:06<00:05,  5.19it/s]           Iter:  38%|███▊      | 16/42 [00:06<00:04,  5.30it/s]           Iter:  40%|████      | 17/42 [00:06<00:04,  5.31it/s]           Iter:  43%|████▎     | 18/42 [00:06<00:04,  5.24it/s]           Iter:  45%|████▌     | 19/42 [00:06<00:04,  5.15it/s]           Iter:  48%|████▊     | 20/42 [00:07<00:04,  5.18it/s]           Iter:  50%|█████     | 21/42 [00:07<00:03,  5.26it/s]           Iter:  52%|█████▏    | 22/42 [00:07<00:03,  5.37it/s]           Iter:  55%|█████▍    | 23/42 [00:07<00:03,  5.51it/s]           Iter:  57%|█████▋    | 24/42 [00:07<00:03,  5.61it/s]           Iter:  60%|█████▉    | 25/42 [00:07<00:03,  5.56it/s]           Iter:  62%|██████▏   | 26/42 [00:08<00:02,  5.56it/s]           Iter:  64%|██████▍   | 27/42 [00:08<00:02,  5.45it/s]           Iter:  67%|██████▋   | 28/42 [00:08<00:02,  5.53it/s]           Iter:  69%|██████▉   | 29/42 [00:08<00:02,  5.16it/s]           Iter:  71%|███████▏  | 30/42 [00:08<00:02,  4.95it/s]           Iter:  74%|███████▍  | 31/42 [00:09<00:02,  5.17it/s]           Iter:  76%|███████▌  | 32/42 [00:09<00:01,  5.07it/s]           Iter:  79%|███████▊  | 33/42 [00:09<00:01,  5.07it/s]           Iter:  81%|████████  | 34/42 [00:09<00:01,  5.13it/s]           Iter:  83%|████████▎ | 35/42 [00:09<00:01,  5.07it/s]           Iter:  86%|████████▌ | 36/42 [00:10<00:01,  5.27it/s]           Iter:  88%|████████▊ | 37/42 [00:10<00:00,  5.37it/s]           Iter:  90%|█████████ | 38/42 [00:10<00:00,  5.52it/s]           Iter:  93%|█████████▎| 39/42 [00:10<00:00,  5.62it/s]           Iter:  95%|█████████▌| 40/42 [00:10<00:00,  5.69it/s]           Iter:  98%|█████████▊| 41/42 [00:10<00:00,  5.74it/s]           Iter: 100%|██████████| 42/42 [00:11<00:00,  6.40it/s]           Iter: 100%|██████████| 42/42 [00:11<00:00,  3.76it/s]
+====> Clustering..
+====> Storing centroids (16, 512)
+====> Done!
+
+  Cache refresh:   0%|          | 0/8 [00:00<?, ?it/s][A
+                                                      [A
+  Cache refresh:   0%|          | 0/8 [00:00<?, ?it/s][A====> Building Cache
+
+
+compute query descriptors:   0%|          | 0/76 [00:00<?, ?it/s][A[A
+
+compute query descriptors:   1%|▏         | 1/76 [00:01<01:19,  1.06s/it][A[A
+
+compute query descriptors:   3%|▎         | 2/76 [00:01<00:40,  1.83it/s][A[A
+
+compute query descriptors:   4%|▍         | 3/76 [00:01<00:28,  2.53it/s][A[A
+
+compute query descriptors:   5%|▌         | 4/76 [00:01<00:23,  3.10it/s][A[A
+
+compute query descriptors:   7%|▋         | 5/76 [00:01<00:20,  3.50it/s][A[A
+
+compute query descriptors:   8%|▊         | 6/76 [00:02<00:18,  3.70it/s][A[A
+
+compute query descriptors:   9%|▉         | 7/76 [00:02<00:17,  3.91it/s][A[A
+
+compute query descriptors:  11%|█         | 8/76 [00:02<00:15,  4.29it/s][A[A
+
+compute query descriptors:  12%|█▏        | 9/76 [00:02<00:14,  4.48it/s][A[A
+
+compute query descriptors:  13%|█▎        | 10/76 [00:02<00:14,  4.47it/s][A[A
+
+compute query descriptors:  14%|█▍        | 11/76 [00:03<00:14,  4.37it/s][A[A
+
+compute query descriptors:  16%|█▌        | 12/76 [00:03<00:14,  4.52it/s][A[A
+
+compute query descriptors:  17%|█▋        | 13/76 [00:03<00:13,  4.58it/s][A[A
+
+compute query descriptors:  18%|█▊        | 14/76 [00:03<00:13,  4.74it/s][A[A
+
+compute query descriptors:  20%|█▉        | 15/76 [00:04<00:12,  4.78it/s][A[A
+
+compute query descriptors:  21%|██        | 16/76 [00:04<00:13,  4.59it/s][A[A
+
+compute query descriptors:  22%|██▏       | 17/76 [00:04<00:12,  4.86it/s][A[A
+
+compute query descriptors:  24%|██▎       | 18/76 [00:04<00:12,  4.82it/s][A[A
+
+compute query descriptors:  25%|██▌       | 19/76 [00:04<00:12,  4.42it/s][A[A
+
+compute query descriptors:  26%|██▋       | 20/76 [00:05<00:12,  4.44it/s][A[A
+
+compute query descriptors:  28%|██▊       | 21/76 [00:05<00:12,  4.42it/s][A[A
+
+compute query descriptors:  29%|██▉       | 22/76 [00:05<00:11,  4.67it/s][A[A
+
+compute query descriptors:  30%|███       | 23/76 [00:05<00:11,  4.57it/s][A[A
+
+compute query descriptors:  32%|███▏      | 24/76 [00:05<00:10,  4.81it/s][A[A
+
+compute query descriptors:  33%|███▎      | 25/76 [00:06<00:10,  4.81it/s][A[A
+
+compute query descriptors:  34%|███▍      | 26/76 [00:06<00:10,  4.95it/s][A[A
+
+compute query descriptors:  36%|███▌      | 27/76 [00:06<00:09,  4.94it/s][A[A
+
+compute query descriptors:  37%|███▋      | 28/76 [00:06<00:10,  4.68it/s][A[A
+
+compute query descriptors:  38%|███▊      | 29/76 [00:07<00:10,  4.69it/s][A[A
+
+compute query descriptors:  39%|███▉      | 30/76 [00:07<00:09,  4.76it/s][A[A
+
+compute query descriptors:  41%|████      | 31/76 [00:07<00:09,  4.88it/s][A[A
+
+compute query descriptors:  42%|████▏     | 32/76 [00:07<00:09,  4.81it/s][A[A
+
+compute query descriptors:  43%|████▎     | 33/76 [00:07<00:08,  4.91it/s][A[A
+
+compute query descriptors:  45%|████▍     | 34/76 [00:08<00:08,  5.00it/s][A[A
+
+compute query descriptors:  46%|████▌     | 35/76 [00:08<00:08,  4.98it/s][A[A
+
+compute query descriptors:  47%|████▋     | 36/76 [00:08<00:08,  4.81it/s][A[A
+
+compute query descriptors:  49%|████▊     | 37/76 [00:08<00:08,  4.68it/s][A[A
+
+compute query descriptors:  50%|█████     | 38/76 [00:08<00:07,  5.02it/s][A[A
+
+compute query descriptors:  51%|█████▏    | 39/76 [00:09<00:07,  4.94it/s][A[A
+
+compute query descriptors:  53%|█████▎    | 40/76 [00:09<00:07,  4.95it/s][A[A
+
+compute query descriptors:  54%|█████▍    | 41/76 [00:09<00:06,  5.08it/s][A[A
+
+compute query descriptors:  55%|█████▌    | 42/76 [00:09<00:06,  5.01it/s][A[A
+
+compute query descriptors:  57%|█████▋    | 43/76 [00:09<00:06,  5.02it/s][A[A
+
+compute query descriptors:  58%|█████▊    | 44/76 [00:10<00:06,  5.11it/s][A[A
+
+compute query descriptors:  59%|█████▉    | 45/76 [00:10<00:06,  5.13it/s][A[A
+
+compute query descriptors:  61%|██████    | 46/76 [00:10<00:06,  4.88it/s][A[A
+
+compute query descriptors:  62%|██████▏   | 47/76 [00:10<00:05,  4.88it/s][A[A
+
+compute query descriptors:  63%|██████▎   | 48/76 [00:10<00:05,  4.77it/s][A[A
+
+compute query descriptors:  64%|██████▍   | 49/76 [00:11<00:05,  4.92it/s][A[A
+
+compute query descriptors:  66%|██████▌   | 50/76 [00:11<00:04,  5.28it/s][A[A
+
+compute query descriptors:  67%|██████▋   | 51/76 [00:11<00:04,  5.45it/s][A[A
+
+compute query descriptors:  68%|██████▊   | 52/76 [00:11<00:04,  5.35it/s][A[A
+
+compute query descriptors:  70%|██████▉   | 53/76 [00:11<00:04,  5.33it/s][A[A
+
+compute query descriptors:  71%|███████   | 54/76 [00:12<00:04,  4.91it/s][A[A
+
+compute query descriptors:  72%|███████▏  | 55/76 [00:12<00:04,  4.69it/s][A[A
+
+compute query descriptors:  74%|███████▎  | 56/76 [00:12<00:04,  4.82it/s][A[A
+
+compute query descriptors:  75%|███████▌  | 57/76 [00:12<00:04,  4.69it/s][A[A
+
+compute query descriptors:  76%|███████▋  | 58/76 [00:12<00:03,  4.66it/s][A[A
+
+compute query descriptors:  78%|███████▊  | 59/76 [00:13<00:03,  4.70it/s][A[A
+
+compute query descriptors:  79%|███████▉  | 60/76 [00:13<00:03,  4.93it/s][A[A
+
+compute query descriptors:  80%|████████  | 61/76 [00:13<00:03,  4.72it/s][A[A
+
+compute query descriptors:  82%|████████▏ | 62/76 [00:13<00:02,  4.93it/s][A[A
+
+compute query descriptors:  83%|████████▎ | 63/76 [00:13<00:02,  4.86it/s][A[A
+
+compute query descriptors:  84%|████████▍ | 64/76 [00:14<00:02,  4.60it/s][A[A
+
+compute query descriptors:  86%|████████▌ | 65/76 [00:14<00:02,  4.57it/s][A[A
+
+compute query descriptors:  87%|████████▋ | 66/76 [00:14<00:02,  4.69it/s][A[A
+
+compute query descriptors:  88%|████████▊ | 67/76 [00:14<00:01,  4.78it/s][A[A
+
+compute query descriptors:  89%|████████▉ | 68/76 [00:14<00:01,  5.19it/s][A[A
+
+compute query descriptors:  91%|█████████ | 69/76 [00:15<00:01,  4.91it/s][A[A
+
+compute query descriptors:  92%|█████████▏| 70/76 [00:15<00:01,  5.04it/s][A[A
+
+compute query descriptors:  93%|█████████▎| 71/76 [00:15<00:01,  4.98it/s][A[A
+
+compute query descriptors:  95%|█████████▍| 72/76 [00:15<00:00,  4.93it/s][A[A
+
+compute query descriptors:  96%|█████████▌| 73/76 [00:16<00:00,  4.57it/s][A[A
+
+compute query descriptors:  97%|█████████▋| 74/76 [00:16<00:00,  5.06it/s][A[A
+
+compute query descriptors:  99%|█████████▊| 75/76 [00:16<00:00,  5.38it/s][A[A
+
+compute query descriptors: 100%|██████████| 76/76 [00:16<00:00,  5.61it/s][A[A
+
+compute query descriptors: 77it [00:16,  5.89it/s]                        [A[A

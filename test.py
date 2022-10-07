@@ -75,6 +75,6 @@ def test_model(model, val_dataset, threads, cuda, device, pbar_position=0):
     for i, n in enumerate(n_values):
         all_recalls[n] = recall_at_n[i]
         tqdm.write("====> Recall@{}: {:.4f}".format(n, recall_at_n[i]))
-
+        
     return all_recalls
 

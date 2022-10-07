@@ -3,17 +3,24 @@ import torch
 import os
 import torch.nn as nn
 
+from os.path import join
 from models import backbone
 from models import feature_select
 from models import post_matching
 from models import model_head
 
 class VPRModelTemplate(nn.Module):
-    def __init__(self, model_cfg):
+    def __init__(self, model_cfg, cache_dataset=False):
         super().__init__()
+        if cache_dataset:
+            raise NotImplementedError("No dataset needed for Template model class")
         self.module_topology = ['backbone', 'feature_selecter', 'post_matching', 'model_head']
-        # self.cache_save_path = os.path.join(os.getcwd(), 'weight_data/cache_pth')
-        # os.makedirs(self.cache_save_path) if not os.path.exists(self.cache_save_path) else print("cache_pth exist")
+
+    def create_model_dir(self, model_name):
+        self.cache_save_path = join(os.getcwd(), 'weight_data/cache_pth/', model_name)
+        self.weight_save_path = join(os.getcwd(), 'weight_data/model_pth/', model_name)
+        os.makedirs(self.cache_save_path) if not os.path.exists(self.cache_save_path) else print("cache_pth exist")
+        os.makedirs(self.weight_save_path) if not os.path.exists(self.weight_save_path) else print("weight_pth exist")
 
     def build_networks(self, model_cfg):
         model_cfg['module_list'] = []

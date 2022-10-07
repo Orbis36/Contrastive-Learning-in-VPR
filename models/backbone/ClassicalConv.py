@@ -4,12 +4,12 @@ import torchvision.models as models
 class ClassicalConvBackbone(nn.Module):
     def __init__(self, model_cfg):
         super().__init__()
-        encoder_name = model_cfg.TYPE
+        self.encoder_name = model_cfg.TYPE
 
         # TODO: 这里需要让网络控制是否不需要训练，已经参数导入，为了seq模型
         # self.freeze_to_layer = model_cfg.FREEZE_TO
 
-        if encoder_name.lower() == 'vgg16':
+        if self.encoder_name.lower() == 'vgg16':
             encoder= models.vgg16(pretrained=model_cfg.PRETRAINED)
             layers = list(encoder.features.children())[:-2]
             if model_cfg.PRETRAINED:
@@ -18,7 +18,7 @@ class ClassicalConvBackbone(nn.Module):
                     for p in l.parameters():
                         p.requires_grad = False
 
-        elif encoder_name.lower() == 'alexnet':
+        elif self.encoder_name.lower() == 'alexnet':
             encoder = models.alexnet(pretrained=model_cfg.pretrained)
             layers = list(encoder.features.children())[:-2]
             if model_cfg.pretrained:

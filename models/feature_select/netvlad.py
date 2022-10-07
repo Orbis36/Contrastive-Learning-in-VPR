@@ -87,10 +87,11 @@ class NetVLAD(FeatureSelectTemplate):
         return data_dict
 
     def get_feature_selected_loss(self, data_dict):
-
+        
+        # 这里需要根据当前bs大小来算这个分离数而不是bs
         features_encoded = data_dict['clustered_feature']
         B = data_dict['bs']
-        nNeg = data_dict['nNegUse'] * B
+        nNeg = data_dict['nNegUse']
         # negCounts 是各个batch中负样本数目
         negCounts = data_dict['negCounts']
 
