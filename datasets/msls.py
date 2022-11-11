@@ -28,6 +28,7 @@ Modified by Stephen Hausler, Sourav Garg, Ming Xu, Michael Milford and Tobias Fi
 '''
 
 
+from symbol import pass_stmt
 import numpy as np
 from PIL import Image
 import torch.utils.data as data
@@ -60,45 +61,25 @@ default_cities = {
 }
 
 
-class ImagesFromList(Dataset):
-    def __init__(self, images, transform):
-        self.images = np.asarray(images)
-        self.transform = transform
-
-    def __len__(self):
-        return len(self.images)
-
-    def __getitem__(self, idx):
-        try:
-            img = [Image.open(im) for im in self.images[idx].split(",")]
-        except:
-            img = [Image.open(self.images[0])]
-        img = [self.transform(im) for im in img]
-
-        if len(img) == 1:
-            img = img[0]
-
-        return img, idx
-
-
 class MSLS(DatasetTemplate):
+    
     def __init__(self, root_dir, cities='', nNeg=5, transform=None, mode='train', task='im2im', subtask='all',
                  seq_length=1, posDistThr=10, negDistThr=25, cached_queries=1000, cached_negatives=1000,
                  positive_sampling=True, bs=24, threads=8, margin=0.1, exclude_panos=True):
+    
+    
+    # def __init__(self, config, mode):
 
         # initializing
+        """
         assert mode in ('train', 'val', 'test')
-        assert task in ('im2im', 'im2seq', 'seq2im', 'seq2seq')
-        assert subtask in ('all', 's2w', 'w2s', 'o2n', 'n2o', 'd2n', 'n2d')
-        assert seq_length % 2 == 1
-        assert (task == 'im2im' and seq_length == 1) or (task != 'im2im' and seq_length > 1)
+        assert config.TRAINING_TASK in ('im2im', 'im2seq', 'seq2im', 'seq2seq')
+        assert config.SUBTASK in ('all', 's2w', 'w2s', 'o2n', 'n2o', 'd2n', 'n2d') \
+                if config.SUBTASK is not None else print("No specific subtask specified")
+        assert (config.TRAINING_TASK == 'im2im' and config.SEQ_LENGTH == 1) or \
+                (config.TRAINING_TASK != 'im2im' and config.SEQ_LENGTH > 1 and config.SEQ_LENGTH % 2 == 1)
+        """
 
-        if cities in default_cities:
-            self.cities = default_cities[cities]
-        elif cities == '':
-            self.cities = default_cities[mode]
-        else:
-            self.cities = cities.split(',')
 
         self.qIdx = []
         self.qImages = []

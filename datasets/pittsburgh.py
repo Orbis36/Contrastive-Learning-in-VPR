@@ -1,15 +1,16 @@
 from os.path import join
-from .dataset import DatasetTemplate
+from .dataset import DatasetTemplate, ImagesFromList
 from scipy.io import loadmat
+from tqdm import tqdm
 from .augmentor.image_augmentor import DataAugmentor
-from utils.common_utils import reFormatDict
+from utils.common_utils import reFormatDict, load_to_gpu
 
+from PIL import Image
 import torch.utils.data as data
-import torch
 import numpy as np
 import math
 import random
-import cv2
+import torch
 
 class Pittsburgh(DatasetTemplate):
     def __init__(self, config, mode):
@@ -19,13 +20,14 @@ class Pittsburgh(DatasetTemplate):
         assert config.SPLIT in ['pitts30k', 'pitts250k'], "Pittsbugh splited error, only support 30k or 250k"
         assert config.PRETEXT_TASK in ['Regression', 'Classifiction', 'Contrastive'], "Pretext task error"
         assert config.TRAINING_TASK in ['i2i'], "Pitts dataset only support i2i task" # No seq data annotation in Pittsburgh dataset
-
+        
         self.device = config.DEVICE
         self.root_path = config.PATH.ROOT_PATH
         self.margin = config.SAMPLE.MERGIN
         self.split = config.SPLIT
         self.pretext_task = config.PRETEXT_TASK
         self.bs = config.TRAINING.BATCH_SIZE
+        self.bs_cluster = config.TRAINING.BATCH_SIZE_CLUSTER
         self.workers = config.TRAINING.WORKERS
         
         # 在pittbugrh数据集中各个weight相等
@@ -35,6 +37,7 @@ class Pittsburgh(DatasetTemplate):
         self.dbImages = np.asarray([join(self.root_path, dbIm) for dbIm in self.dbStruct.dbImage], dtype=object)
         queries_dir = self.root_path + config.PATH.QUERIES_PATH
         self.qImages = np.asarray([join(queries_dir, qIm) for qIm in self.dbStruct.qImage], dtype=object)
+        self.allImages = np.concatenate((self.dbImages,self.qImages),axis=0)
         
         # 为了满足msls格式的dataloader，实际上表示城市，这里pitts只有一个城市，即一个元素
         self.qEndPosList, self.dbEndPosList = [len(self.qImages)], [len(self.dbImages)]
@@ -78,22 +81,6 @@ class Pittsburgh(DatasetTemplate):
         return self.dbStruct(whichSet, self.split, dbImage, utmDb, qImage, 
                 utmQ, numDb, numQ, posDistThr, 
                 posDistSqThr, nonTrivPosDistSqThr)
-
-    def new_epoch(self):
-        # find how many subset we need to do 1 epoch
-        self.nCacheSubset = math.ceil(len(self.qIdx) / self.cached_queries)
-
-        # get all indices
-        arr = np.arange(len(self.qIdx))
-
-        # apply positive sampling of indices
-        arr = random.choices(arr, self.weights, k=len(arr))
-
-        # calculate the subcache indices
-        self.subcache_indices = np.array_split(arr, self.nCacheSubset)
-        
-        # reset subset counter
-        self.current_subset = 0
     
     def collate_fn(self, batch):
         
@@ -103,16 +90,12 @@ class Pittsburgh(DatasetTemplate):
             try:
                 if key in ['nQuery', 'nPos', 'nNeg']:
                     ret[key] = np.vstack(val).transpose(0, 3, 1, 2)
-                elif key in ['p_n_label']:
-                    ret[key] = np.stack(val, axis=0)
-                elif key in ['negCounts']:
+                elif key in ['negUse']:
                     ret[key] = np.concatenate(val)
             except:
                 print('Error in collate_batch: key=%s' % key)
                 raise TypeError
-
-        ret['bs'] = ret['nQuery'].shape[0]
-        ret['nNegUse'] = ret['nNeg'].shape[0]
+        
         ret['image'] = np.vstack((ret['nQuery'], ret['nPos'], ret['nNeg']))
         [ret.pop(x) for x in ['nQuery', 'nPos', 'nNeg']]
         return ret
@@ -123,29 +106,37 @@ class Pittsburgh(DatasetTemplate):
         imageAug = self.augmentor.forward(temp)
         return imageAug['image']
 
+    def new_epoch(self):
+
+        # refresh ways to get
+        self.nCacheSubset = math.ceil(len(self.qIdx) / self.cached_queries)
+        arr = np.arange(len(self.qIdx))
+        arr = random.choices(arr, self.weights, k=len(arr))
+        self.subcache_indices = np.array_split(arr, self.nCacheSubset)
+
+    def update_subcache(self, model):
+
+        opt = {'batch_size': self.bs_cluster, 'shuffle': False, 'num_workers': self.workers, \
+                        'pin_memory': True, 'collate_fn': ImagesFromList.collect_fn_img_load}
+        out_dim = model.feature_selecter.num_clusters * model.backbone.out_dim
+        model.eval()
+        with torch.no_grad():
+            allvecs = torch.zeros(len(self.allImages), out_dim).to(self.device)
+            big_loader = torch.utils.data.DataLoader(ImagesFromList(self.allImages, transform=self.augmentor), **opt)
+            for i, data_dict in tqdm(enumerate(big_loader), desc='compute all descriptors', total=len(self.allImages) // self.bs_cluster,
+                                    position=2, leave=False):
+                    load_to_gpu(data_dict)
+                    batch_dict = model(data_dict)
+                    allvecs[i * self.bs_cluster:(i + 1) * self.bs_cluster, :] = batch_dict['clustered_feature']
+            allvecs = allvecs.cpu().numpy()
+        # 若过大，则应考虑写入硬盘
+        self.allvecs = allvecs
+
     def __getitem__(self, idx):
         
         ret = {}
         # get triplet
 
-        triplet, target = self.triplets[idx]
-
-        # get query, positive and negative idx
-        qidx = triplet[0]
-        pidx = triplet[1]
-        nidx = triplet[2:]
-
-        # load images into triplet list
-        negImage = np.stack([cv2.imread(self.dbImages[idx]) for idx in nidx],axis=0)
-        pImage = cv2.imread(self.dbImages[pidx])[np.newaxis, ...]
-        qImage = cv2.imread(self.qImages[qidx])[np.newaxis, ...]
-
-        imageAug = self.prepare_data(negImage, qImage, pImage)
-        ret['nQuery'] = imageAug[0:1, ...]
-        ret['nPos'] = imageAug[1:2, ...]
-        ret['nNeg'] = imageAug[2:, ...]
-        ret['p_n_label'] = np.array([qidx, pidx] + nidx)
-        ret['negCounts'] = np.array(len(nidx)).reshape(-1, 1)
-        return ret
-
-
+        
+        
+        

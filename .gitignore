@@ -5,6 +5,8 @@
 .idea/*
 .vscode/*
 
+NetVLAD-Pitts30k.log
+
 !.idea/codeStyles
 !.idea/runConfigurations
 

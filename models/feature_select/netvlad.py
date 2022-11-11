@@ -32,7 +32,7 @@ class NetVLAD(FeatureSelectTemplate):
         self.centroids = nn.Parameter(torch.rand(self.num_clusters, model_cfg.BACKBONE_OUT_DIM))
 
     def init_params(self, clsts, traindescs):
-        #TODO replace numpy ops with pytorch ops
+        print("New Vlad Using {}".format(self.vladv2))
         if self.vladv2 == False:
             clstsAssign = clsts / np.linalg.norm(clsts, axis=1, keepdims=True)
             dots = np.dot(clstsAssign, traindescs.T)
@@ -59,10 +59,12 @@ class NetVLAD(FeatureSelectTemplate):
             self.conv.bias = nn.Parameter(
                 - self.alpha * self.centroids.norm(dim=1)
             )
+        print("VLAD layer initialized")
 
     def forward(self, data_dict):
         x = data_dict['feature_map']
         N, C = x.shape[:2]
+
         if self.normalize_input:
             x = F.normalize(x, p=2, dim=1)  # across descriptor dim
 
@@ -77,7 +79,9 @@ class NetVLAD(FeatureSelectTemplate):
         for C in range(self.num_clusters): # slower than non-looped, but lower memory usage 
             residual = x_flatten.unsqueeze(0).permute(1, 0, 2, 3) - \
                     self.centroids[C:C+1, :].expand(x_flatten.size(-1), -1, -1).permute(1, 2, 0).unsqueeze(0)
+            a = soft_assign[:,C:C+1,:].unsqueeze(2)
             residual *= soft_assign[:,C:C+1,:].unsqueeze(2)
+            b = residual.sum(dim=-1)
             vlad[:,C:C+1,:] = residual.sum(dim=-1)
 
         vlad = F.normalize(vlad, p=2, dim=2)  # intra-normalization
@@ -88,12 +92,11 @@ class NetVLAD(FeatureSelectTemplate):
 
     def get_feature_selected_loss(self, data_dict):
         
-        # 这里需要根据当前bs大小来算这个分离数而不是bs
         features_encoded = data_dict['clustered_feature']
-        B = data_dict['bs']
-        nNeg = data_dict['nNegUse']
+        B = data_dict['negUse'].shape[0]
+        nNeg = torch.sum(data_dict['negUse'])
         # negCounts 是各个batch中负样本数目
-        negCounts = data_dict['negCounts']
+        negCounts = data_dict['negUse']
 
         vladQ, vladP, vladN = torch.split(features_encoded, [B, B, nNeg])
         loss = 0

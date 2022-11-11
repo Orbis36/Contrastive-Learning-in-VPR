@@ -15,10 +15,10 @@ MODEL:
     FEATURE_SELECT: 
         NAME: VLADLayer
         MARGIN: 0.1
-        CLUSTERS_NUM: 16
-        VLAD_NEW_VERSION: True
+        CLUSTERS_NUM: 64
+        VLAD_NEW_VERSION: False
         NORMALIZE: True
-        INIT_PARAM: True
+        INIT_PARAM: False
 
 
     POST_MATCHING: 

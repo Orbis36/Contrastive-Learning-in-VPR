@@ -8,6 +8,7 @@ from models import build_network
 from torch.utils.data import DataLoader
 from tqdm.auto import trange, tqdm
 from test import test_model
+from torch.utils.data.dataset import Subset
 
 import torch
 import yaml
@@ -24,7 +25,7 @@ if __name__ == "__main__":
     if not os.path.exists(opt.temp_weight_path):
         os.makedirs(opt.temp_weight_path)
     os.environ["TORCH_HOME"]=opt.temp_weight_path
-
+    
     # TODO: Output dir and LOG dir and Wandb setting
     # TODO: Multi-Card training
     # TODO: Combine opt config and model_cfg
@@ -48,22 +49,27 @@ if __name__ == "__main__":
     not_improved = 0
     best_score = 0
     for epoch in range(model_cfg.OPTIMIZATION.EPOCH):
-        # TODO：这里按照不同pretext task应该写不同，分类时应该在此处划分新子集
         train_dataset.new_epoch()
+        # TODO：这里按照不同pretext task应该写不同，分类时应该在此处划分新子集
         for subIter in trange(train_dataset.nCacheSubset, desc='Cache refresh'.rjust(15), position=1):
             # A single epoch
             tqdm.write('====> Building Cache')
-            train_dataset.update_subcache(model)
-            training_data_loader = DataLoader(dataset=train_dataset, num_workers=opt.threads,
+            # train_dataset.update_subcache(model)
+            sub_train_set = Subset(dataset=train_dataset, indices=train_dataset.subcache_indices[subIter])
+            training_data_loader = DataLoader(dataset=sub_train_set, num_workers=opt.threads,
                                             batch_size=train_dataset.bs, shuffle=True,
                                             collate_fn=train_dataset.collate_fn, pin_memory=cuda)
             model.train()
             for iteration, batch_dict in enumerate(training_data_loader):
                 load_to_gpu(batch_dict)
                 batch_dict = model(batch_dict)
+                optimizer.zero_grad()
                 loss = model.get_training_loss(batch_dict)
+
                 loss.backward()
                 optimizer.step()
+            
+
         if opt.optim.upper() == 'SGD':
             scheduler.step(epoch)
 

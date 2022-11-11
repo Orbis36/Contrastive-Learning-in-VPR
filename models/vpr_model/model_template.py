@@ -1,5 +1,5 @@
 from turtle import back
-import torch
+import sys
 import os
 import torch.nn as nn
 
@@ -37,7 +37,7 @@ class VPRModelTemplate(nn.Module):
         model_cfg['FEATURE_SELECT']['BACKBONE_OUT_DIM'] = out_dim
         model_cfg['module_list'].append(backbone_module)
         return backbone_module, model_cfg
-
+    
     def build_feature_selecter(self, model_cfg):
         selector = feature_select.__all__[model_cfg.FEATURE_SELECT.NAME](model_cfg.FEATURE_SELECT)
         model_cfg['module_list'].append(selector)
